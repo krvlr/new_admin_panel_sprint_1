@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS content.film_work (
     rating FLOAT,
     type content.type not null,
     created timestamp with time zone,
-    modified timestamp with time zone,
+    modified timestamp with time zone
 );
 
 CREATE TABLE IF NOT EXISTS content.genre (
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS content.genre (
     description TEXT,
     created timestamp with time zone,
     modified timestamp with time zone,
-    UNIQUE(name),
+    UNIQUE(name)
 ); 
 
 CREATE TABLE IF NOT EXISTS content.genre_film_work (
@@ -51,10 +51,9 @@ CREATE TABLE IF NOT EXISTS content.person_film_work (
 
 CREATE UNIQUE INDEX IF NOT EXISTS film_work_title_date ON content.film_work (title, creation_date);
 CREATE UNIQUE INDEX IF NOT EXISTS film_work_type_rating_date ON content.film_work (type, rating, creation_date);
-CREATE UNIQUE INDEX IF NOT EXISTS film_work_title ON content.film_work (title, creation_date);
 CREATE UNIQUE INDEX IF NOT EXISTS film_work_genre_idx ON content.genre_film_work (film_work_id, genre_id);
 CREATE UNIQUE INDEX IF NOT EXISTS film_work_person_idx ON content.person_film_work (film_work_id, person_id, role);
 
-CREATE TYPE gender AS ENUM ('male', 'female');
-ALTER TABLE content.person ADD COLUMN "gender" gender NULL;
+-- CREATE TYPE gender AS ENUM ('male', 'female');
+-- ALTER TABLE content.person ADD COLUMN "gender" gender NULL;
 COMMIT; 
