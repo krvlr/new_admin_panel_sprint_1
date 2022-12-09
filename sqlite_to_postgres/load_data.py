@@ -11,6 +11,7 @@ from psycopg2.extensions import connection as _connection
 from psycopg2.extras import DictCursor, execute_values
 
 from models_dataclasses import TABLE_NAME_DATACLASS_MAPPING
+from sqlite_to_postgres.settings import POSTGRES_CONNECTION_SETTINGS, SQLITE_DB_FILE
 
 load_dotenv()
 
@@ -32,6 +33,8 @@ class SQLiteExtractor:
         curs = self.conn.cursor()
         curs.execute(f"SELECT * FROM {table_name};")
         table_data_list = curs.fetchall()
+        # TODO fetchmany не входит в критерии готовности, дополнительное условие.
+        # См. Проектное задание: перенос данных
         return [
             data_class.from_dict(dict(table_line)) for table_line in table_data_list
         ]
@@ -73,15 +76,7 @@ def load_from_sqlite(sqlite_conn: sqlite3.Connection, pg_conn: _connection):
 
 
 if __name__ == "__main__":
-    dsl = {
-        "dbname": os.environ.get("PG_DB_NAME"),
-        "user": os.environ.get("PG_DB_USER"),
-        "password": os.environ.get("PG_DB_PASSWORD"),
-        "host": os.environ.get("PG_DB_HOST"),
-        "port": os.environ.get("PG_DB_PORT"),
-    }
-
-    with conn_context(
-        os.environ.get("SQLITE_DB_FILE")
-    ) as sqlite_conn, psycopg2.connect(**dsl, cursor_factory=DictCursor) as pg_conn:
+    with conn_context(SQLITE_DB_FILE) as sqlite_conn, psycopg2.connect(
+        **POSTGRES_CONNECTION_SETTINGS, cursor_factory=DictCursor
+    ) as pg_conn:
         load_from_sqlite(sqlite_conn, pg_conn)

@@ -8,6 +8,7 @@ from psycopg2.extras import DictCursor
 
 from ...sqlite_to_postgres.load_data import conn_context
 from ...sqlite_to_postgres.models_dataclasses import TABLE_NAME_DATACLASS_MAPPING
+from ...sqlite_to_postgres.settings import POSTGRES_CONNECTION_SETTINGS, SQLITE_DB_FILE
 
 load_dotenv()
 
@@ -39,19 +40,12 @@ def get_all_data(conn, table_name: str, schema: str = "") -> list[dataclass]:
 
 
 if __name__ == "__main__":
-    dsl = {
-        "dbname": os.environ.get("PG_DB_NAME"),
-        "user": os.environ.get("PG_DB_USER"),
-        "password": os.environ.get("PG_DB_PASSWORD"),
-        "host": os.environ.get("PG_DB_HOST"),
-        "port": os.environ.get("PG_DB_PORT"),
-    }
-
     with (
-        conn_context(os.environ.get("SQLITE_DB_FILE")) as sqlite_conn,
-        psycopg2.connect(**dsl, cursor_factory=DictCursor) as pg_conn,
+        conn_context(SQLITE_DB_FILE) as sqlite_conn,
+        psycopg2.connect(
+            **POSTGRES_CONNECTION_SETTINGS, cursor_factory=DictCursor
+        ) as pg_conn,
     ):
-
         for table_name in TABLE_NAME_DATACLASS_MAPPING.keys():
             sqlite_count = get_rows_count(sqlite_conn, table_name)
             pg_count = get_rows_count(pg_conn, table_name, "content.")
