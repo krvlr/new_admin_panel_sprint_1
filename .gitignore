@@ -129,3 +129,6 @@ dmypy.json
 .pyre/
 
 .python-version
+
+# Visual Studio Code # 
+.vscode/

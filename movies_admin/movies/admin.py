@@ -13,6 +13,8 @@ class GenreAdmin(admin.ModelAdmin):
 class GenreFilmworkInline(admin.TabularInline):
     model = GenreFilmwork
 
+    autocomplete_fields = ("genre",)
+
 
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
@@ -23,6 +25,8 @@ class PersonAdmin(admin.ModelAdmin):
 
 class PersonFilmworkInline(admin.TabularInline):
     model = PersonFilmwork
+
+    autocomplete_fields = ("person",)
 
 
 @admin.register(Filmwork)

@@ -65,6 +65,17 @@ class Filmwork(UUIDMixin, TimeStampedMixin):
         verbose_name = _("Film work")
         verbose_name_plural = _("Film works")
 
+        indexes = [
+            models.Index(
+                fields=["title", "creation_date"],
+                name="film_work_title_date",
+            ),
+            models.Index(
+                fields=["type", "rating", "creation_date"],
+                name="film_work_type_rating_date",
+            ),
+        ]
+
 
 class GenreFilmwork(UUIDMixin):
     film_work = models.ForeignKey("Filmwork", on_delete=models.CASCADE)
@@ -73,6 +84,13 @@ class GenreFilmwork(UUIDMixin):
 
     class Meta:
         db_table = 'content"."genre_film_work'
+
+        indexes = [
+            models.Index(
+                fields=["film_work_id", "genre_id"],
+                name="genre_film_work",
+            ),
+        ]
 
 
 class Gender(models.TextChoices):
@@ -101,3 +119,10 @@ class PersonFilmwork(UUIDMixin):
 
     class Meta:
         db_table = 'content"."person_film_work'
+
+        indexes = [
+            models.Index(
+                fields=["film_work_id", "person_id", "role"],
+                name="film_work_person_idx",
+            ),
+        ]
