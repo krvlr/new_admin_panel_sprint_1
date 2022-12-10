@@ -1,4 +1,7 @@
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 POSTGRES_CONNECTION_SETTINGS = {
     "dbname": os.environ.get("PG_DB_NAME"),

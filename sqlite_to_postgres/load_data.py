@@ -1,5 +1,4 @@
 import logging
-import os
 import sqlite3
 from contextlib import contextmanager
 from dataclasses import asdict, astuple, dataclass
@@ -9,9 +8,10 @@ from dotenv import load_dotenv
 from psycopg2.errors import Error
 from psycopg2.extensions import connection as _connection
 from psycopg2.extras import DictCursor, execute_values
+from sqlite3 import DatabaseError
 
 from models_dataclasses import TABLE_NAME_DATACLASS_MAPPING
-from sqlite_to_postgres.settings import POSTGRES_CONNECTION_SETTINGS, SQLITE_DB_FILE
+from settings import POSTGRES_CONNECTION_SETTINGS, SQLITE_DB_FILE
 
 load_dotenv()
 
@@ -27,18 +27,18 @@ def conn_context(db_path: str):
 class SQLiteExtractor:
     def __init__(self, conn: sqlite3.Connection) -> None:
         self.conn = conn
+        self.size = 50
 
     def extract_table(self, table_name: str) -> list[dataclass]:
-        data_class = TABLE_NAME_DATACLASS_MAPPING[table_name]
         curs = self.conn.cursor()
-        curs.execute(f"SELECT * FROM {table_name};")
-        table_data_list = curs.fetchall()
-        # TODO fetchmany не входит в критерии готовности, дополнительное условие.
-        # См. Проектное задание: перенос данных
-        return [
-            data_class.from_dict(dict(table_line)) for table_line in table_data_list
-        ]
+        data_class = TABLE_NAME_DATACLASS_MAPPING[table_name]
 
+        try:
+            curs.execute(f"SELECT * FROM {table_name};")
+            while table_data_list := curs.fetchmany(self.size):
+                yield from [data_class.from_dict(dict(table_line)) for table_line in table_data_list]
+        except (DatabaseError, Exception) as e:
+            logging.error(f"Ошибка при запросе данных из таблицы {table_name}", e)
 
 class PostgresSaver:
     def __init__(self, conn: _connection) -> None:

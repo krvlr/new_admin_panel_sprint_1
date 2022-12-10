@@ -1,3 +1,8 @@
-ALLOWED_HOSTS = ["127.0.0.1"]
+import os
+from dotenv import load_dotenv
 
-INTERNAL_IPS = ["127.0.0.1"]
+load_dotenv()
+
+ALLOWED_HOSTS = [os.environ.get("HOST_ADDRESS")]
+
+INTERNAL_IPS = [os.environ.get("HOST_ADDRESS")]
